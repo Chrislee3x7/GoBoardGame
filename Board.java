@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashSet;
-import java.util.Set;
 
 
 public class Board extends JPanel
@@ -29,9 +28,9 @@ public class Board extends JPanel
 
     private static final Color BOARD_LINES_COLOR = new Color( 0, 0, 0 );
 
-    private int boardWidth;
+    private int width;
 
-    private int boardHeight;
+    private int height;
 
     private Stone[][] stoneMatrix;
 
@@ -49,20 +48,13 @@ public class Board extends JPanel
     public Board( GameManager gm, int boardWidth, int boardHeight )
     {
         this.gm = gm;
-        this.boardWidth = boardWidth;
-        this.boardHeight = boardHeight;
-        stoneMatrix = new Stone[boardWidth][boardHeight];
-        setBorder( BorderFactory.createLineBorder(Color.red) );
-        this.setSize( 800, 800 );
+        this.width = boardWidth;
+        this.height = boardHeight;
+        stoneMatrix = new Stone[width][height];
         // paint( getGraphics() );
         // getGraphics().fillRect( 40, 40, 40, 40 );
-        for ( int i = 0; i < boardWidth; i++ )
-        {
-            for ( int j = 0; j < boardHeight; j++ )
-            {
-                stoneMatrix[i][j] = null;
-            }
-        }
+        setPreferredSize(new Dimension(800, 800));
+        setBackground(BACKGROUND_COLOR);
     }
 
 
@@ -70,6 +62,7 @@ public class Board extends JPanel
     {
         BoardLocation bl = new BoardLocation( ( x - 20 ) / 40,
             ( y - 20 ) / 40 );
+        System.out.println( bl );
         return bl;
     }
 
@@ -112,10 +105,11 @@ public class Board extends JPanel
     {
         // Stone deletedStone = new Stone(StoneColor.RED, location, this);
         // deletedStone.display();
-        repaint( location.getX() * 40 + 20,
-            location.getY() * 40 + 20,
-            40,
-            40 );
+        repaint( 5000, location.getX() * 40 + 23,
+            location.getY() * 40 + 23,
+            34,
+            34 );
+        this.update( getGraphics() );
     }
 
 
@@ -161,7 +155,7 @@ public class Board extends JPanel
             }
         }
 
-        if ( stone.getLocation().getX() < boardWidth - 1 )
+        if ( stone.getLocation().getX() < width - 1 )
         {
             Stone adjacentStone = getEastStone( stone.getLocation() );
             if ( adjacentStone != null
@@ -187,7 +181,7 @@ public class Board extends JPanel
             }
         }
 
-        if ( stone.getLocation().getY() < boardWidth - 1 )
+        if ( stone.getLocation().getY() < width - 1 )
         {
             Stone adjacentStone = getSouthStone( stone.getLocation() );
             if ( adjacentStone != null
@@ -208,7 +202,7 @@ public class Board extends JPanel
         if ( !hasLiberties( adjacentStone, visitedStones ) )
         {
             for ( Stone visitedStone : visitedStones )
-            {
+            {  
                 removeStone( visitedStone.getLocation() );
             }
         }
@@ -249,7 +243,7 @@ public class Board extends JPanel
         Stone stone,
         HashSet<Stone> visitedStones )
     {
-        if ( stone.getLocation().getY() >= boardHeight - 1 )
+        if ( stone.getLocation().getY() >= height - 1 )
         {
             return false;
         }
@@ -262,7 +256,7 @@ public class Board extends JPanel
         Stone stone,
         HashSet<Stone> visitedStones )
     {
-        if ( stone.getLocation().getX() >= boardWidth - 1 )
+        if ( stone.getLocation().getX() >= width - 1 )
         {
             return false;
         }
@@ -317,7 +311,7 @@ public class Board extends JPanel
 
     public Stone getStone( int x, int y )
     {
-        if ( x < 0 || x >= boardWidth || y < 0 || y >= boardHeight )
+        if ( x < 0 || x >= width || y < 0 || y >= height )
         {
             return null;
         }
@@ -357,75 +351,64 @@ public class Board extends JPanel
 
     public int getWidth()
     {
-        return boardWidth;
+        return width;
     }
 
 
     public int getHeight()
     {
-        return boardHeight;
+        return height;
     }
 
 
     public void paintComponent( Graphics g )
     {
-         System.out
-         .println( "I am repainting if this is not the first line :P" );
+        super.paintComponent( g );
+        
+        System.out
+            .println( "I am repainting if this is not the first line :P" );
         Graphics2D g2D = (Graphics2D)g;
         // g2D.fillRect( 40, 40, 40, 40 );
-        g2D.setColor( BACKGROUND_COLOR );
-        g2D.fillRect( 0, 0, 800, 800 + BORDER_WIDTH );
-//        g2D.setColor( BOARD_COLOR );
-//        g2D.fillRect( BOARD_EDGE_OFFSET,
-//            BORDER_WIDTH + BOARD_EDGE_OFFSET,
-//            BOARD_DIMMENSION,
-//            BOARD_DIMMENSION );
-//        g2D.setColor( BOARD_LINES_COLOR );
-//        g2D.drawRect( BOARD_EDGE_OFFSET,
-//            BORDER_WIDTH + BOARD_EDGE_OFFSET,
-//            BOARD_DIMMENSION,
-//            BOARD_DIMMENSION );
-//        g2D.drawRect( 40, 40 + BORDER_WIDTH, 720, 720 );
-//        for ( int i = 1; i < 19; i++ )
-//        {
-//            g2D.drawLine(
-//                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
-//                    + i * LINE_GAP_DISTANCE,
-//                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET + BORDER_WIDTH,
-//                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
-//                    + i * LINE_GAP_DISTANCE,
-//                WINDOW_LENGTH - BOARD_EDGELINES_OFFSET - BOARD_EDGE_OFFSET
-//                    + BORDER_WIDTH );
-//            g2D.drawLine( BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET,
-//                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
-//                    + i * LINE_GAP_DISTANCE + BORDER_WIDTH,
-//                WINDOW_LENGTH - BOARD_EDGELINES_OFFSET - BOARD_EDGE_OFFSET,
-//                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
-//                    + i * LINE_GAP_DISTANCE + BORDER_WIDTH );
-//        }
-//        for ( int i = 0; i < 3; i++ )
-//        {
-//            for ( int j = 0; j < 3; j++ )
-//            {
-//                g2D.fillOval( FIRST_DOT_OFFSET + LINE_GAP_DISTANCE * 6 * i,
-//                    FIRST_DOT_OFFSET + LINE_GAP_DISTANCE * 6 * j
-//                        + +BORDER_WIDTH,
-//                    REFERENCE_DOT_DIAMETER,
-//                    REFERENCE_DOT_DIAMETER );
-//            }
-//        }
+        g2D.setColor( BOARD_COLOR );
+        g2D.fillRect( BOARD_EDGE_OFFSET,
+            BORDER_WIDTH + BOARD_EDGE_OFFSET,
+            BOARD_DIMMENSION,
+            BOARD_DIMMENSION );
+        g2D.setColor( BOARD_LINES_COLOR );
+        g2D.drawRect( BOARD_EDGE_OFFSET,
+            BORDER_WIDTH + BOARD_EDGE_OFFSET,
+            BOARD_DIMMENSION,
+            BOARD_DIMMENSION );
+        g2D.drawRect( 40, 40 + BORDER_WIDTH, 720, 720 );
+        for ( int i = 1; i < 19; i++ )
+        {
+            g2D.drawLine(
+                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
+                    + i * LINE_GAP_DISTANCE,
+                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET + BORDER_WIDTH,
+                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
+                    + i * LINE_GAP_DISTANCE,
+                WINDOW_LENGTH - BOARD_EDGELINES_OFFSET - BOARD_EDGE_OFFSET
+                    + BORDER_WIDTH );
+            g2D.drawLine( BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET,
+                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
+                    + i * LINE_GAP_DISTANCE + BORDER_WIDTH,
+                WINDOW_LENGTH - BOARD_EDGELINES_OFFSET - BOARD_EDGE_OFFSET,
+                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
+                    + i * LINE_GAP_DISTANCE + BORDER_WIDTH );
+        }
+        for ( int i = 0; i < 3; i++ )
+        {
+            for ( int j = 0; j < 3; j++ )
+            {
+                g2D.fillOval( FIRST_DOT_OFFSET + LINE_GAP_DISTANCE * 6 * i,
+                    FIRST_DOT_OFFSET + LINE_GAP_DISTANCE * 6 * j
+                        + +BORDER_WIDTH,
+                    REFERENCE_DOT_DIAMETER,
+                    REFERENCE_DOT_DIAMETER );
+            }
+        }
 
-//        for ( int i = 0; i < width; i++ )
-//        {
-//            for ( int j = 0; j < height; j++ )
-//            {
-//                Stone stone = getStone(i, j);
-//                if (stone != null)
-//                {
-//                    stone.display();
-//                }
-//            }
-//        }
         // BoardLocation test = new BoardLocation( 0, 0 );
         // BoardLocation test2 = new BoardLocation( 0, 1 );
         // gm.playPiece( BoardPieceColor.BLACK, test);

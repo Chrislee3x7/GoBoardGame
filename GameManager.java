@@ -1,9 +1,9 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 public class GameManager implements MouseListener
 {
 
-    //private JFrame board;
+    // private JFrame board;
 
     private Player player1;
 
@@ -20,9 +20,11 @@ public class GameManager implements MouseListener
     private Player currentPlayer;
 
     JPanel board;
-    
+
     JFrame window;
-    
+
+    JPanel test;
+
     public static void main( String[] args )
     {
         GameManager gm = new GameManager();
@@ -30,23 +32,30 @@ public class GameManager implements MouseListener
 
 
     public GameManager()
-    {   
+    {
+        
         
         window = new JFrame( "Go" );
-        window.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
-        window.setResizable( true );
-        board = new Board(this);
-        window.add( board );
+        
+//        board = new Board( this );
+//        window.getContentPane().add( board, BorderLayout.CENTER );
 //        board.addMouseListener( this );
-        window.setBounds(200, 30, 810, 835 );
+        
+        test = new TestJPanel();
+        window.getContentPane().add( test);
+        test.addMouseListener( this );
+        
+        
+        window.setBounds( 200, 30, 810, 835 );
+        window.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+        window.setResizable( false );
         window.setVisible( true );
+
+        
+       
         player1 = new HumanPlayer( StoneColor.BLACK );
         player2 = new HumanPlayer( StoneColor.WHITE );
         currentPlayer = player1;
-        
-        
-        
-        
     }
 
 
@@ -59,10 +68,10 @@ public class GameManager implements MouseListener
     public boolean playPiece( StoneColor color, BoardLocation location )
     {
         // returns if it was played or not (valid or invalid)
-        boolean wasValidPlay = ((Board)board).addStone( color, location );
+        boolean wasValidPlay = ( (Board)board ).addStone( color, location );
         if ( !wasValidPlay )
         {
-            
+
             // player receives a message "pls choose nother place",
             // stone is not played, still same players turn
         }
@@ -78,7 +87,6 @@ public class GameManager implements MouseListener
 
     public void mouseClicked( MouseEvent e )
     {
-        System.out.println("POO");
         BoardLocation loc = Board.translateToLocation( e.getX(), e.getY() );
         if ( playPiece( currentPlayer.getColor(), loc ) )
         {
@@ -86,7 +94,7 @@ public class GameManager implements MouseListener
         }
         else
         {
-            //TODO
+            // TODO
             // System.out.println("Please choose another location.");
         }
     }
