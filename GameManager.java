@@ -6,6 +6,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 
 public class GameManager implements MouseListener
@@ -18,12 +19,10 @@ public class GameManager implements MouseListener
     private Player player2;
 
     private Player currentPlayer;
+    
+    private GameBoard gameBoard;
 
-    JPanel board;
-
-    JFrame window;
-
-    JPanel test;
+    private JFrame window;
 
     public static void main( String[] args )
     {
@@ -37,19 +36,21 @@ public class GameManager implements MouseListener
         
         window = new JFrame( "Go" );
         
-//        board = new Board( this );
-//        window.getContentPane().add( board, BorderLayout.CENTER );
-//        board.addMouseListener( this );
+        gameBoard = new GameBoard( this );
         
-        test = new TestJPanel();
-        window.getContentPane().add( test);
-        test.addMouseListener( this );
+        JPanel drawBoard = (gameBoard).getDrawBoard();
+        window.getContentPane().add( drawBoard);
         
+        JComponent stoneZone = gameBoard.getStoneZone();
+        window.setGlassPane( stoneZone );
+        stoneZone.setVisible( true );
+        drawBoard.addMouseListener( this );
         
         window.setBounds( 200, 30, 810, 835 );
         window.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
-        window.setResizable( false );
+        window.setResizable( false);
         window.setVisible( true );
+        
 
         
        
@@ -68,7 +69,7 @@ public class GameManager implements MouseListener
     public boolean playPiece( StoneColor color, BoardLocation location )
     {
         // returns if it was played or not (valid or invalid)
-        boolean wasValidPlay = ( (Board)board ).addStone( color, location );
+        boolean wasValidPlay = ( gameBoard ).addStone( color, location );
         if ( !wasValidPlay )
         {
 
@@ -79,15 +80,16 @@ public class GameManager implements MouseListener
     }
 
 
-    public Board getBoard()
+    public GameBoard getBoard()
     {
-        return (Board)board;
+        return gameBoard;
     }
 
 
     public void mouseClicked( MouseEvent e )
     {
-        BoardLocation loc = Board.translateToLocation( e.getX(), e.getY() );
+        System.out.println("mouse clicked");
+        BoardLocation loc = GameBoard.translateToLocation( e.getX(), e.getY() );
         if ( playPiece( currentPlayer.getColor(), loc ) )
         {
             switchPlayer();

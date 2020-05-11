@@ -1,9 +1,12 @@
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.HashSet;
 
 
-public class Board extends JPanel
+public class GameBoard
 {
     private static final int WINDOW_LENGTH = 800;
 
@@ -28,33 +31,27 @@ public class Board extends JPanel
 
     private static final Color BOARD_LINES_COLOR = new Color( 0, 0, 0 );
 
-    private int width;
+    private static final int WIDTH = 19;
 
-    private int height;
+    private static final int HEIGHT = 19;
 
     private Stone[][] stoneMatrix;
 
     // private Graphics2D graphics2D;
 
-    GameManager gm;
+    private GameManager gm;
+
+    private DrawBoard drawBoard;
+
+    private StoneZone stoneZone;
 
 
-    public Board( GameManager gm )
-    {
-        this( gm, 19, 19 );
-    }
-
-
-    public Board( GameManager gm, int boardWidth, int boardHeight )
+    public GameBoard( GameManager gm )
     {
         this.gm = gm;
-        this.width = boardWidth;
-        this.height = boardHeight;
-        stoneMatrix = new Stone[width][height];
-        // paint( getGraphics() );
-        // getGraphics().fillRect( 40, 40, 40, 40 );
-        setPreferredSize(new Dimension(800, 800));
-        setBackground(BACKGROUND_COLOR);
+        stoneZone = new StoneZone( this );
+        drawBoard = new DrawBoard( this );
+        stoneMatrix = new Stone[WIDTH][HEIGHT];
     }
 
 
@@ -67,6 +64,12 @@ public class Board extends JPanel
     }
 
 
+    public DrawBoard getDrawBoard()
+    {
+        return drawBoard;
+    }
+
+
     public boolean addStone( StoneColor color, BoardLocation location )
     {
         boolean isEmptyLocation = isEmptyLocation( location );
@@ -74,14 +77,14 @@ public class Board extends JPanel
         {
             return false;
         }
-        Stone testStone = new Stone( color, location, this );
+        Stone testStone = new Stone( color, location, stoneZone );
         stoneMatrix[location.getX()][location.getY()] = testStone;
 
         if ( hasLiberties( color,
             location )/* GoRules.isValidPlacement( board, location, color ) */ )
         {
-            removeZeroLibertyStones( testStone );
             testStone.display();
+            removeZeroLibertyStones( testStone );
             return true;
         }
         else
@@ -96,26 +99,19 @@ public class Board extends JPanel
 
     public void removeStone( BoardLocation location )
     {
+        Stone stone = stoneMatrix[location.getX()][location.getY()];
         stoneMatrix[location.getX()][location.getY()] = null;
-        repaintLocation( location );
-    }
-
-
-    public void repaintLocation( BoardLocation location )
-    {
-        // Stone deletedStone = new Stone(StoneColor.RED, location, this);
-        // deletedStone.display();
-        repaint( 5000, location.getX() * 40 + 23,
-            location.getY() * 40 + 23,
-            34,
-            34 );
-        this.update( getGraphics() );
+        System.out.println( "trying to repaint to remove stone" );
+        // stoneZone.repaint();
+        // stoneZone.paintComponent( stoneZone.getGraphics() );
+        // drawBoard.repaintLocation( location );
+        // drawBoard.update();
     }
 
 
     public boolean hasLiberties( StoneColor color, BoardLocation location )
     {
-        Stone stone = new Stone( color, location, this );
+        Stone stone = new Stone( color, location, stoneZone );
         HashSet<Stone> visitedStones = new HashSet<Stone>();
         return hasLiberties( stone, visitedStones );
 
@@ -142,70 +138,64 @@ public class Board extends JPanel
         // get adjacent stones north south east west
         // check if each adjacent enemy stone has at least one liberty
         // if has no liberties, whole chain needs to be removed
+        HashSet<Stone> stonesToBeRemoved = new HashSet<Stone>();
         if ( stone.getLocation().getX() > 0 )
         {
             Stone adjacentStone = getWestStone( stone.getLocation() );
-            if ( adjacentStone != null
-                && adjacentStone.getColor() != stone.getColor() )
-            {
-                dealWithVisitedStones( adjacentStone ); // either
-                                                        // delete
-                                                        // or not
-                                                        // delete
-            }
+
+            // either delete or not delete
+            stonesToBeRemoved
+                .addAll( findRemovableStones( adjacentStone, stone ) );
         }
 
-        if ( stone.getLocation().getX() < width - 1 )
+        if ( stone.getLocation().getX() < WIDTH - 1 )
         {
             Stone adjacentStone = getEastStone( stone.getLocation() );
-            if ( adjacentStone != null
-                && adjacentStone.getColor() != stone.getColor() )
-            {
-                dealWithVisitedStones( adjacentStone ); // either
-                                                        // delete
-                                                        // or not
-                                                        // delete
-            }
+            // either delete or not delete
+            stonesToBeRemoved
+                .addAll( findRemovableStones( adjacentStone, stone ) );
         }
 
         if ( stone.getLocation().getY() > 0 )
         {
             Stone adjacentStone = getNorthStone( stone.getLocation() );
-            if ( adjacentStone != null
-                && adjacentStone.getColor() != stone.getColor() )
-            {
-                dealWithVisitedStones( adjacentStone ); // either
-                                                        // delete
-                                                        // or not
-                                                        // delete
-            }
+            // either delete or not delete
+            stonesToBeRemoved
+                .addAll( findRemovableStones( adjacentStone, stone ) );
         }
 
-        if ( stone.getLocation().getY() < width - 1 )
+        if ( stone.getLocation().getY() < WIDTH - 1 )
         {
             Stone adjacentStone = getSouthStone( stone.getLocation() );
-            if ( adjacentStone != null
-                && adjacentStone.getColor() != stone.getColor() )
-            {
-                dealWithVisitedStones( adjacentStone ); // either
-                                                        // delete
-                                                        // or not
-                                                        // delete
-            }
+            // either delete or not delete
+            stonesToBeRemoved
+                .addAll( findRemovableStones( adjacentStone, stone ) );
+        }
+        for ( Stone stoneToBeRemoved : stonesToBeRemoved )
+        {
+            removeStone( stoneToBeRemoved.getLocation() );
+        }
+        if ( stonesToBeRemoved.size() > 0 )
+        {
+            stoneZone.repaint();
         }
     }
 
 
-    private void dealWithVisitedStones( Stone adjacentStone )
+    private HashSet<Stone> findRemovableStones(
+        Stone adjacentStone,
+        Stone stone )
     {
-        HashSet<Stone> visitedStones = new HashSet<Stone>();
-        if ( !hasLiberties( adjacentStone, visitedStones ) )
+        if ( adjacentStone != null
+            && adjacentStone.getColor() != stone.getColor() )
         {
-            for ( Stone visitedStone : visitedStones )
-            {  
-                removeStone( visitedStone.getLocation() );
+            HashSet<Stone> visitedStones = new HashSet<Stone>();
+            if ( !hasLiberties( adjacentStone, visitedStones ) )
+            {
+                return visitedStones;
             }
         }
+        return new HashSet<Stone>();
     }
 
 
@@ -243,7 +233,7 @@ public class Board extends JPanel
         Stone stone,
         HashSet<Stone> visitedStones )
     {
-        if ( stone.getLocation().getY() >= height - 1 )
+        if ( stone.getLocation().getY() >= HEIGHT - 1 )
         {
             return false;
         }
@@ -256,7 +246,7 @@ public class Board extends JPanel
         Stone stone,
         HashSet<Stone> visitedStones )
     {
-        if ( stone.getLocation().getX() >= width - 1 )
+        if ( stone.getLocation().getX() >= WIDTH - 1 )
         {
             return false;
         }
@@ -311,7 +301,7 @@ public class Board extends JPanel
 
     public Stone getStone( int x, int y )
     {
-        if ( x < 0 || x >= width || y < 0 || y >= height )
+        if ( x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT )
         {
             return null;
         }
@@ -343,78 +333,20 @@ public class Board extends JPanel
     }
 
 
-    public Graphics2D getGraphics2D()
-    {
-        return (Graphics2D)getGraphics();
-    }
-
-
     public int getWidth()
     {
-        return width;
+        return WIDTH;
     }
 
 
     public int getHeight()
     {
-        return height;
+        return HEIGHT;
     }
 
 
-    public void paintComponent( Graphics g )
+    public StoneZone getStoneZone()
     {
-        super.paintComponent( g );
-        
-        System.out
-            .println( "I am repainting if this is not the first line :P" );
-        Graphics2D g2D = (Graphics2D)g;
-        // g2D.fillRect( 40, 40, 40, 40 );
-        g2D.setColor( BOARD_COLOR );
-        g2D.fillRect( BOARD_EDGE_OFFSET,
-            BORDER_WIDTH + BOARD_EDGE_OFFSET,
-            BOARD_DIMMENSION,
-            BOARD_DIMMENSION );
-        g2D.setColor( BOARD_LINES_COLOR );
-        g2D.drawRect( BOARD_EDGE_OFFSET,
-            BORDER_WIDTH + BOARD_EDGE_OFFSET,
-            BOARD_DIMMENSION,
-            BOARD_DIMMENSION );
-        g2D.drawRect( 40, 40 + BORDER_WIDTH, 720, 720 );
-        for ( int i = 1; i < 19; i++ )
-        {
-            g2D.drawLine(
-                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
-                    + i * LINE_GAP_DISTANCE,
-                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET + BORDER_WIDTH,
-                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
-                    + i * LINE_GAP_DISTANCE,
-                WINDOW_LENGTH - BOARD_EDGELINES_OFFSET - BOARD_EDGE_OFFSET
-                    + BORDER_WIDTH );
-            g2D.drawLine( BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET,
-                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
-                    + i * LINE_GAP_DISTANCE + BORDER_WIDTH,
-                WINDOW_LENGTH - BOARD_EDGELINES_OFFSET - BOARD_EDGE_OFFSET,
-                BOARD_EDGELINES_OFFSET + BOARD_EDGE_OFFSET
-                    + i * LINE_GAP_DISTANCE + BORDER_WIDTH );
-        }
-        for ( int i = 0; i < 3; i++ )
-        {
-            for ( int j = 0; j < 3; j++ )
-            {
-                g2D.fillOval( FIRST_DOT_OFFSET + LINE_GAP_DISTANCE * 6 * i,
-                    FIRST_DOT_OFFSET + LINE_GAP_DISTANCE * 6 * j
-                        + +BORDER_WIDTH,
-                    REFERENCE_DOT_DIAMETER,
-                    REFERENCE_DOT_DIAMETER );
-            }
-        }
-
-        // BoardLocation test = new BoardLocation( 0, 0 );
-        // BoardLocation test2 = new BoardLocation( 0, 1 );
-        // gm.playPiece( BoardPieceColor.BLACK, test);
-        // gm.playPiece( BoardPieceColor.WHITE, test2);
-        // BoardLocation l = new BoardLocation(4, 4);
-        // BoardPiece bp = new BoardPiece( BoardPieceColor.BLACK, l, this );
-        // bp.display(getGraphics());
+        return stoneZone;
     }
 }

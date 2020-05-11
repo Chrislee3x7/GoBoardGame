@@ -12,7 +12,7 @@ public class GoRules
     // own stones
     // capture of the enemy takes precedence over self-capture
     public static boolean isValidPlacement(
-        Board board,
+        GameBoard board,
         BoardLocation location,
         StoneColor color )
     {
@@ -144,7 +144,7 @@ public class GoRules
 
 
     private static boolean isValidNorthStone(
-        Board board,
+        GameBoard board,
         BoardLocation location,
         StoneColor otherColor )
     {
@@ -154,7 +154,7 @@ public class GoRules
 
 
     private static boolean isValidSouthStone(
-        Board board,
+        GameBoard board,
         BoardLocation location,
         StoneColor otherColor )
     {
@@ -164,7 +164,7 @@ public class GoRules
 
 
     private static boolean isValidEastStone(
-        Board board,
+        GameBoard board,
         BoardLocation location,
         StoneColor otherColor )
     {
@@ -174,7 +174,7 @@ public class GoRules
 
 
     private static boolean isValidWestStone(
-        Board board,
+        GameBoard board,
         BoardLocation location,
         StoneColor otherColor )
     {
@@ -183,14 +183,14 @@ public class GoRules
     }
     
 
-    private static boolean isInRange( Board board, BoardLocation location )
+    private static boolean isInRange( GameBoard board, BoardLocation location )
     {
         return location.getX() < board.getWidth() && location.getX() >= 0
             && location.getY() < board.getHeight() && location.getY() >= 0;
     }
 
 
-    private static boolean isOccupied( Board board, BoardLocation location )
+    private static boolean isOccupied( GameBoard board, BoardLocation location )
     {
         return board.getStone( location ) != null;
     }

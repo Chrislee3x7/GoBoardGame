@@ -2,10 +2,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
 
-public class TestJPanel extends JPanel
+public class DrawBoard extends JPanel
 {
 
     private static final int WINDOW_LENGTH = 800;
@@ -31,16 +33,27 @@ public class TestJPanel extends JPanel
 
     private static final Color BOARD_LINES_COLOR = new Color( 0, 0, 0 );
     
+    private Graphics2D g2D;
     
-    public TestJPanel()
+    private GameBoard myGameBoard;
+    
+    public DrawBoard( GameBoard gameBoard )
     {
+        myGameBoard = gameBoard;
         setPreferredSize(new Dimension( 400, 400 ));
-        setBackground( BACKGROUND_COLOR );
         
+        setBackground( BACKGROUND_COLOR );
+        g2D = (Graphics2D) getGraphics();
+    }
+    
+    public Graphics2D getGraphics2D()
+    {
+        return (Graphics2D)getGraphics();
     }
     
     public void paintComponent(Graphics g)
     {
+        System.out.println("DrawBoard repaint method called");
         super.paintComponent( g );
         Graphics2D g2D = (Graphics2D)g;
         // g2D.fillRect( 40, 40, 40, 40 );

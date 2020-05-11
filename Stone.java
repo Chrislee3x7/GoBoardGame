@@ -4,6 +4,8 @@ import java.awt.RadialGradientPaint;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.JPanel;
+
 
 public class Stone
 {
@@ -11,21 +13,21 @@ public class Stone
 
     private BoardLocation location;
     
-    private Board board;
+    private StoneZone stoneZone;
 
-    private static final int INITIAL_OFFSET_CENTER = Board.BOARD_EDGE_OFFSET
-        + Board.BOARD_EDGELINES_OFFSET;
+    private static final int INITIAL_OFFSET_CENTER = DrawBoard.BOARD_EDGE_OFFSET
+        + DrawBoard.BOARD_EDGELINES_OFFSET;
 
     private static final int LINE_GAP_LENGTH = 40;
 
     private static final int PIECE_DIAMETER = 38;
 
 
-    public Stone( StoneColor color, BoardLocation location, Board board )
+    public Stone( StoneColor color, BoardLocation location, StoneZone stoneZone )
     {
         this.color = color;
         this.location = location;
-        this.board = board;
+        this.stoneZone = stoneZone;
     }
 
 
@@ -47,15 +49,16 @@ public class Stone
     
     public void display()
     {
-        Graphics2D g = (Graphics2D) board.getGraphics();
+        System.out.println(this + " displayed this stone");
+        Graphics2D g = (Graphics2D) stoneZone.getGraphics();
         int x = INITIAL_OFFSET_CENTER + LINE_GAP_LENGTH * location.getX()
             - PIECE_DIAMETER / 2;
         int y = INITIAL_OFFSET_CENTER + LINE_GAP_LENGTH * location.getY()
-            - PIECE_DIAMETER / 2 + Board.BORDER_WIDTH;
+            - PIECE_DIAMETER / 2 + GameBoard.BORDER_WIDTH;
         int centerX = INITIAL_OFFSET_CENTER
             + LINE_GAP_LENGTH * location.getX();
         int centerY = INITIAL_OFFSET_CENTER + LINE_GAP_LENGTH * location.getY()
-            + Board.BORDER_WIDTH;
+            + GameBoard.BORDER_WIDTH;
         g.fillOval( x, y, PIECE_DIAMETER, PIECE_DIAMETER );
         Color[] colors = new Color[2];
         float[] dist = { 0.2f, 0.8f };
