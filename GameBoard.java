@@ -18,13 +18,6 @@ public class GameBoard
 
     public static final int BOARD_EDGELINES_OFFSET = 30;
 
-    private static final int BOARD_DIMMENSION = 780;
-
-    private static final int REFERENCE_DOT_DIAMETER = 10;
-
-    private static final int FIRST_DOT_OFFSET = LINE_GAP_DISTANCE * 4
-        - REFERENCE_DOT_DIAMETER / 2;
-
     private static final Color BACKGROUND_COLOR = new Color( 0, 100, 0 );
 
     private static final Color BOARD_COLOR = new Color( 255, 210, 120 );
@@ -59,7 +52,7 @@ public class GameBoard
     {
         BoardLocation bl = new BoardLocation( ( x - 20 ) / 40,
             ( y - 20 ) / 40 );
-        System.out.println( bl );
+        //System.out.println( bl );
         return bl;
     }
 
@@ -79,12 +72,12 @@ public class GameBoard
         }
         Stone testStone = new Stone( color, location, stoneZone );
         stoneMatrix[location.getX()][location.getY()] = testStone;
+        
 
-        if ( hasLiberties( color,
+        if ( removeZeroLibertyStones( testStone ) || hasLiberties( color,
             location )/* GoRules.isValidPlacement( board, location, color ) */ )
         {
-            testStone.display();
-            removeZeroLibertyStones( testStone );
+            testStone.display((Graphics2D)stoneZone.getGraphics());
             return true;
         }
         else
@@ -101,7 +94,7 @@ public class GameBoard
     {
         Stone stone = stoneMatrix[location.getX()][location.getY()];
         stoneMatrix[location.getX()][location.getY()] = null;
-        System.out.println( "trying to repaint to remove stone" );
+        //System.out.println( "trying to repaint to remove stone" );
         // stoneZone.repaint();
         // stoneZone.paintComponent( stoneZone.getGraphics() );
         // drawBoard.repaintLocation( location );
@@ -133,7 +126,8 @@ public class GameBoard
     }
 
 
-    private void removeZeroLibertyStones( Stone stone )
+    //return if any stones are removed
+    private boolean removeZeroLibertyStones( Stone stone )
     {
         // get adjacent stones north south east west
         // check if each adjacent enemy stone has at least one liberty
@@ -179,6 +173,7 @@ public class GameBoard
         {
             stoneZone.repaint();
         }
+        return stonesToBeRemoved.size() > 0;
     }
 
 

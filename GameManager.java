@@ -43,6 +43,7 @@ public class GameManager implements MouseListener
         
         JComponent stoneZone = gameBoard.getStoneZone();
         window.setGlassPane( stoneZone );
+        //drawBoard.setVisible( false );
         stoneZone.setVisible( true );
         drawBoard.addMouseListener( this );
         
@@ -88,7 +89,7 @@ public class GameManager implements MouseListener
 
     public void mouseClicked( MouseEvent e )
     {
-        System.out.println("mouse clicked");
+        //System.out.println("mouse clicked");
         BoardLocation loc = GameBoard.translateToLocation( e.getX(), e.getY() );
         if ( playPiece( currentPlayer.getColor(), loc ) )
         {

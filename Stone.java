@@ -47,10 +47,9 @@ public class Stone
         
     }
     
-    public void display()
+    public void display(Graphics2D g)
     {
-        System.out.println(this + " displayed this stone");
-        Graphics2D g = (Graphics2D) stoneZone.getGraphics();
+        //System.out.println(this + " displayed this stone");
         int x = INITIAL_OFFSET_CENTER + LINE_GAP_LENGTH * location.getX()
             - PIECE_DIAMETER / 2;
         int y = INITIAL_OFFSET_CENTER + LINE_GAP_LENGTH * location.getY()

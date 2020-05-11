@@ -53,7 +53,7 @@ public class DrawBoard extends JPanel
     
     public void paintComponent(Graphics g)
     {
-        System.out.println("DrawBoard repaint method called");
+        //System.out.println("DrawBoard repaint method called");
         super.paintComponent( g );
         Graphics2D g2D = (Graphics2D)g;
         // g2D.fillRect( 40, 40, 40, 40 );

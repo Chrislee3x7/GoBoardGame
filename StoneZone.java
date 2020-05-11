@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import javax.swing.JComponent;
@@ -26,8 +27,7 @@ public class StoneZone extends JComponent
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        System.out.println("Called paint method on the glass pane");
-        g.fillRect( 40, 40, 40, 40 );
+        //System.out.println("Called paint method on the glass pane");
         for (int i = 0; i < myGameBoard.getWidth(); i++)
         {
             for (int j = 0; j < myGameBoard.getHeight(); j++)
@@ -35,8 +35,8 @@ public class StoneZone extends JComponent
                 Stone stone = myGameBoard.getStone( i, j );
                 if (stone != null)
                 {
-                    System.out.println("im a stone");
-                    stone.display();
+                    //System.out.println("im a stone");
+                    stone.display((Graphics2D) g);
                     //getGraphics().fillRect( 40, 40, 40, 40 );
                 }
             }
