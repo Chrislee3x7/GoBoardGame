@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Stack;
 
 
 public class GameBoard
@@ -29,8 +31,11 @@ public class GameBoard
     private static final int HEIGHT = 19;
 
     private Stone[][] stoneMatrix;
-
-    // private Graphics2D graphics2D;
+    
+    //for undo/redo
+    private Stone[][] previousBoardState;
+    
+    private Stone[][] undoneBoardState;
 
     private GameManager gm;
 
@@ -46,8 +51,7 @@ public class GameBoard
         drawBoard = new DrawBoard( this );
         stoneMatrix = new Stone[WIDTH][HEIGHT];
     }
-
-
+    
     public static BoardLocation translateToLocation( int x, int y )
     {
         BoardLocation bl = new BoardLocation( ( x - 20 ) / 40,
@@ -56,7 +60,57 @@ public class GameBoard
         return bl;
     }
 
-
+    public Stone[][] getPreviousBoardState()
+    {
+        return previousBoardState;
+    }
+    
+    public Stone[][] getUndoneBoardState()
+    {
+        return undoneBoardState;
+    }
+    
+    public Stone[][] getCurrentBoardState()
+    {
+        return stoneMatrix;
+    }
+    
+    public void setPreviousBoardState(Stone[][] newPreviousBoardState)
+    {
+        previousBoardState = newPreviousBoardState;
+    }
+    
+    public void setUndoneBoardState(Stone[][] newUndoneBoardState)
+    {
+        undoneBoardState = newUndoneBoardState;
+//        for (int i = 0; i < stoneMatrix.length; i++)
+//        {
+//            for (int j = 0; j < stoneMatrix.length; j++)
+//            {
+//                stoneMatrix[i][j] = newStoneMatrix[i][j];
+//            }
+//        }
+    }
+    
+    
+    public void setBoardState(Stone[][] newStoneMatrix)
+    {
+        stoneMatrix = newStoneMatrix;
+    }
+    
+    public Stone[][] cloneCurrentBoardState()
+    {
+        Stone[][] newStoneMatrix = new Stone[WIDTH][HEIGHT];
+        for (int i = 0; i < WIDTH; i++)
+        {
+            for (int j = 0; j < HEIGHT; j++)
+            {
+                newStoneMatrix[i][j] = stoneMatrix[i][j];
+            }
+        }
+        return newStoneMatrix;
+    }
+    
     public DrawBoard getDrawBoard()
     {
         return drawBoard;
@@ -70,7 +124,9 @@ public class GameBoard
         {
             return false;
         }
+        Stone[][] cloneBoard = cloneCurrentBoardState();
         Stone testStone = new Stone( color, location, stoneZone );
+        
         stoneMatrix[location.getX()][location.getY()] = testStone;
         
 
@@ -78,6 +134,8 @@ public class GameBoard
             location )/* GoRules.isValidPlacement( board, location, color ) */ )
         {
             testStone.display((Graphics2D)stoneZone.getGraphics());
+            setPreviousBoardState(cloneBoard);
+            setUndoneBoardState(null);
             return true;
         }
         else
@@ -176,6 +234,19 @@ public class GameBoard
         return stonesToBeRemoved.size() > 0;
     }
 
+    public void printStones()
+    {
+        for (Stone[] s : stoneMatrix)
+        {
+            for (Stone stone : s)
+            {
+                if (stone != null)
+                {
+                    System.out.println(stone);
+                }
+            }
+        }
+    }
 
     private HashSet<Stone> findRemovableStones(
         Stone adjacentStone,

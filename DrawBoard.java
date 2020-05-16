@@ -40,7 +40,7 @@ public class DrawBoard extends JPanel
     public DrawBoard( GameBoard gameBoard )
     {
         myGameBoard = gameBoard;
-        setPreferredSize(new Dimension( 400, 400 ));
+        setPreferredSize(new Dimension( 800, 800 ));
         
         setBackground( BACKGROUND_COLOR );
         g2D = (Graphics2D) getGraphics();
