@@ -2,6 +2,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -11,10 +14,18 @@ public class StoneZone extends JComponent
 {
     private GameBoard myGameBoard;
 
+    private GameManager gm;
 
-    public StoneZone( GameBoard gameBoard )
+    private File startFile1;
+
+    private Scanner sc;
+
+
+    public StoneZone( GameBoard gameBoard, GameManager gm )
     {
         this.myGameBoard = gameBoard;
+        this.gm = gm;
+        startFile1 = new File( "StartPattern1" );
     }
 
 
@@ -28,10 +39,57 @@ public class StoneZone extends JComponent
     // 40 ));
     // }
 
+    public void paintHome( Graphics g ) throws IOException
+    {
+        sc = new Scanner( startFile1 );
+        // System.out.println(Integer.valueOf(sc.next()));
+        for ( int i = 0; i < 19; i++ )
+        {
+            for ( int j = 0; j < 19; j++ )
+            {
+                int piece = sc.nextInt();
+                switch ( piece )
+                {
+                    case 0:
+                        break;
+
+                    case 1:
+                        BoardLocation loc = new BoardLocation( j, i );
+                        Stone stone = new Stone( StoneColor.BLACK, loc, this );
+                        stone.display( (Graphics2D)g );
+                        break;
+                    case 2:
+                        BoardLocation loc2 = new BoardLocation( j, i );
+                        Stone stone2 = new Stone( StoneColor.WHITE,
+                            loc2,
+                            this );
+                        stone2.display( (Graphics2D)g );
+                        break;
+                    default:
+                        System.out.println("incorrect color at: " + j + " " + i);
+                }
+            }
+        }
+    }
+
+
     public void paintComponent( Graphics g )
     {
         super.paintComponent( g );
         // System.out.println("Called repaint for stonezone");
+
+        if ( gm.isAtHome() )
+        {
+            try
+            {
+                paintHome( g );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+            }
+            return;
+        }
 
         for ( int i = 0; i < myGameBoard.getWidth(); i++ )
         {

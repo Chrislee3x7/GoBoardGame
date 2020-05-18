@@ -47,7 +47,7 @@ public class GameBoard
     public GameBoard( GameManager gm )
     {
         this.gm = gm;
-        stoneZone = new StoneZone( this );
+        stoneZone = new StoneZone( this, gm );
         drawBoard = new DrawBoard( this );
         stoneMatrix = new Stone[WIDTH][HEIGHT];
     }
