@@ -3,8 +3,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -16,16 +22,14 @@ public class StoneZone extends JComponent
 
     private GameManager gm;
 
-    private File startFile1;
-
-    private Scanner sc;
+    private int startFileIndex;
 
 
     public StoneZone( GameBoard gameBoard, GameManager gm )
     {
         this.myGameBoard = gameBoard;
         this.gm = gm;
-        startFile1 = new File( "StartPattern1" );
+        startFileIndex = 0;
     }
 
 
@@ -39,9 +43,19 @@ public class StoneZone extends JComponent
     // 40 ));
     // }
 
-    public void paintHome( Graphics g ) throws IOException
+    public void paintHome( Graphics g, String startFileName )
     {
-        sc = new Scanner( startFile1 );
+        Scanner sc = null;
+        try
+        {
+            sc = new Scanner( new File( startFileName ) );
+        }
+        catch ( FileNotFoundException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         // System.out.println(Integer.valueOf(sc.next()));
         for ( int i = 0; i < 19; i++ )
         {
@@ -52,7 +66,6 @@ public class StoneZone extends JComponent
                 {
                     case 0:
                         break;
-
                     case 1:
                         BoardLocation loc = new BoardLocation( j, i );
                         Stone stone = new Stone( StoneColor.BLACK, loc, this );
@@ -66,10 +79,19 @@ public class StoneZone extends JComponent
                         stone2.display( (Graphics2D)g );
                         break;
                     default:
-                        System.out.println("incorrect color at: " + j + " " + i);
+                        System.out
+                            .println( "incorrect color at: " + j + " " + i );
                 }
             }
         }
+        sc.close();
+//        final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+//        executorService.scheduleWithFixedDelay(new Runnable() {
+//            @Override
+//            public void run() {
+//                repaint();
+//            }
+//        }, 0, 20, TimeUnit.MINUTES);
     }
 
 
@@ -77,19 +99,40 @@ public class StoneZone extends JComponent
     {
         super.paintComponent( g );
         // System.out.println("Called repaint for stonezone");
-
+        String startFileName = "";
+        switch ( startFileIndex )
+        {
+            case 0:
+                startFileName = "StartPattern1";
+                break;
+            case 1:
+                startFileName = "YinYangStartPattern";
+                break;
+            case 2:
+                startFileName = "ThumbsUpStartPattern";
+                break;
+            case 3:
+                startFileName = "MinecraftSwordStartPattern";
+                break;
+        }
+        // if (i == 4)
+        // {
+        // i = 0;
+        // }
         if ( gm.isAtHome() )
         {
-            try
+            paintHome( g, startFileName );
+            if (startFileIndex == 3) 
             {
-                paintHome( g );
+                startFileIndex = 0;
             }
-            catch ( IOException e )
+            else 
             {
-                e.printStackTrace();
+                startFileIndex++;
             }
             return;
         }
+        
 
         for ( int i = 0; i < myGameBoard.getWidth(); i++ )
         {

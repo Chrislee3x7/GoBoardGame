@@ -1,10 +1,9 @@
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 
@@ -79,7 +78,7 @@ public class CommandPanel extends JPanel implements ActionListener
     {
         undoButton.setEnabled( gm.canUndo() && !gm.isAtHome() );
         redoButton.setEnabled( gm.canRedo() && !gm.isAtHome() );
-        saveGameButton.setEnabled( !gm.isAtHome() );
+        saveGameButton.setEnabled( gm.canSave() && !gm.isSaved() );
         newGameButton.setEnabled( gm.isAtHome() );
         loadGameButton.setEnabled( gm.canLoad() && gm.isAtHome() );
         homeButton.setEnabled( !gm.isAtHome() );
@@ -99,7 +98,7 @@ public class CommandPanel extends JPanel implements ActionListener
         }
         else if ( button == saveGameButton )
         {
-            gm.saveGame();
+            tryToSave();
         }
         else if ( button == newGameButton )
         {
@@ -111,8 +110,80 @@ public class CommandPanel extends JPanel implements ActionListener
         }
         else if ( button == homeButton )
         {
+            if ( !gm.isSaved() )
+            {
+                tryToGoHomeWithoutSave();
+                if ( !gm.isSaved() )
+                {
+                    Object[] options = { "Go home", "Wait, not yet" };
+                    int n = JOptionPane.showOptionDialog( gm.getWindow(),
+                        "Would you still like to go home?",
+                        "Confirm Go Home",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null,
+                        options,
+                        options[1] );
+                    if ( n == 0 )
+                    {
+                        gm.goHome();
+                    }
+                }
+                else
+                {
+                    gm.goHome();
+                }
+            }
+            else if ( gm.isSaved() )
+            {
+                gm.goHome();
+            }
+        }
+    }
+
+
+    public void tryToGoHomeWithoutSave()
+    {
+        Object[] options = { "Yeah!", "Nah, not this one", "Cancel" };
+        int n = JOptionPane.showOptionDialog( gm.getWindow(),
+            "Hmm... Looks like the current game isnt saved... Would you like to save?",
+            "Save Progress?",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.WARNING_MESSAGE,
+            null,
+            options,
+            options[2] );
+        if ( n == 0 )
+        {
+            tryToSave();
+        }
+        else if ( n == 1 )
+        {
             gm.goHome();
         }
-        updateButtons();
+        // else if (n == 1)
+        // {
+        //
+        // }
+    }
+
+
+    public void tryToSave()
+    {
+        Object[] options = { "I'm sure!", "Cancel" };
+        int n = JOptionPane.showOptionDialog( gm.getWindow(),
+            "Are you sure? Clicking OK will overwrite the current saved game!",
+            "Confirm Save",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.WARNING_MESSAGE,
+            null,
+            options,
+            options[1] );
+        if ( n == 0 )
+        {
+            undoButton.setEnabled( false );
+            redoButton.setEnabled( false );
+            gm.saveGame();
+        }
     }
 }

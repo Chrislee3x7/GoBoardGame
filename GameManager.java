@@ -29,12 +29,15 @@ public class GameManager implements MouseListener
     private JFrame window;
 
     private JPanel drawBoard;
-    
+
     private CommandPanel commandPanel;
-    
-    private  File savedGame;
-    
+
+    private File savedGame;
+
     private boolean atHome = true;
+    
+    private boolean isSaved = true;
+
 
     public static void main( String[] args ) throws FileNotFoundException
     {
@@ -44,8 +47,8 @@ public class GameManager implements MouseListener
 
     public GameManager()
     {
-        savedGame = new File("SavedGame");
-        
+        savedGame = new File( "SavedGame" );
+
         window = new JFrame( "Go" );
 
         gameBoard = new GameBoard( this );
@@ -73,37 +76,47 @@ public class GameManager implements MouseListener
         currentPlayer = player1;
     }
 
+
     private void switchPlayer()
     {
         currentPlayer = currentPlayer == player1 ? player2 : player1;
     }
-    
+
+
     public boolean canUndo()
     {
         return gameBoard.getPreviousBoardState() != null;
     }
-    
+
+
     public boolean canRedo()
     {
         return gameBoard.getUndoneBoardState() != null;
     }
-    
-    public boolean isAtHome() 
+
+
+    public boolean isAtHome()
     {
         return atHome;
     }
-    
-    public void setAtHome(boolean atHome) 
+
+
+    public void setAtHome( boolean atHome )
     {
         this.atHome = atHome;
     }
-    
+
+
     public void startNewGame()
     {
-        setAtHome(false);
+        currentPlayer = player1;
+        setAtHome( false );
+        gameBoard.setBoardState( new Stone[19][19] );
         gameBoard.getStoneZone().repaint();
+        commandPanel.updateButtons();
     }
-    
+
+
     public void loadGame()
     {
 
@@ -112,59 +125,72 @@ public class GameManager implements MouseListener
         Scanner sc = null;
         try
         {
-            sc = new Scanner(savedGame);
+            sc = new Scanner( savedGame );
         }
         catch ( FileNotFoundException e1 )
         {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        for (int i = 0; i < 19; i++)
+        gameBoard.setBoardState( new Stone[19][19] );
+        for ( int i = 0; i < 19; i++ )
         {
-            for (int j = 0; j < 19; j++)
+            for ( int j = 0; j < 19; j++ )
             {
                 int piece = sc.nextInt();
-                switch(piece)
+                switch ( piece )
                 {
                     case 0:
                         break;
                     case 1:
-                        playPiece(StoneColor.BLACK, new BoardLocation(j, i));
+                        gameBoard.addStone( StoneColor.BLACK,
+                            new BoardLocation( j, i ) );
                         break;
                     case 2:
-                        playPiece(StoneColor.WHITE, new BoardLocation(j ,i));
+                        gameBoard.addStone( StoneColor.WHITE,
+                            new BoardLocation( j, i ) );
                         break;
                     default:
-                        System.out.println("incorrect color at: " + j + " " + i);
+                        System.out
+                            .println( "incorrect color at: " + j + " " + i );
                 }
             }
         }
+        String nextPlayerColor = sc.next();
+        //System.out.println(nextPlayerColor.toString() + "<-- saved next player color");
+        if (!currentPlayer.getColor().toString().equals( nextPlayerColor))
+        {
+            switchPlayer();
+        }
+        isSaved = true;
+        commandPanel.updateButtons();
     }
-    
+
+
     public void saveGame()
     {
         PrintWriter pw = null;
         try
         {
-            pw = new PrintWriter(savedGame);
+            pw = new PrintWriter( savedGame );
         }
         catch ( FileNotFoundException e )
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        for (int i = 0; i < 19; i++)
+        for ( int i = 0; i < 19; i++ )
         {
-            for (int j = 0; j < 19; j++)
+            for ( int j = 0; j < 19; j++ )
             {
                 Stone stone = gameBoard.getStone( j, i );
-                if (stone == null)
+                if ( stone == null )
                 {
                     pw.print( "0 " );
                     continue;
                 }
                 StoneColor stoneColor = stone.getColor();
-                switch(stoneColor) 
+                switch ( stoneColor )
                 {
                     case BLACK:
                         pw.print( "1 " );
@@ -175,29 +201,38 @@ public class GameManager implements MouseListener
             }
             pw.println();
         }
+        pw.print( currentPlayer.getColor() );
         pw.close();
+        isSaved = true;
+        commandPanel.updateButtons();
     }
-    
+
+
     public void goHome()
     {
-        //warn user if not saved game progress
-//        if (false)//user does not want to actually leave the game)
-//        {
-//            //return;
-//        }
-        gameBoard.setBoardState( new Stone[19][19] );
-        setAtHome(true);
+        // warn user if not saved game progress
+        // if (false)//user does not want to actually leave the game)
+        // {
+        // //return;
+        // }
+        gameBoard.setBoardState( null );
+        gameBoard.setPreviousBoardState( null );
+        gameBoard.setUndoneBoardState( null );
+        setAtHome( true );
         gameBoard.getStoneZone().repaint();
+        isSaved = true;
+        commandPanel.updateButtons();
     }
-    
-    public boolean canLoad() 
+
+
+    public boolean canLoad()
     {
-        //TODO checks if there is anything in the loaded file
-        //returns false if there isn't must also be at home
+        // TODO checks if there is anything in the loaded file
+        // returns false if there isn't must also be at home
         Scanner sc = null;
         try
         {
-            sc = new Scanner(savedGame);
+            sc = new Scanner( savedGame );
         }
         catch ( FileNotFoundException e )
         {
@@ -207,13 +242,41 @@ public class GameManager implements MouseListener
         boolean hasSavedGame = sc.hasNext();
         return atHome && hasSavedGame;
     }
-   
+
+
+    public boolean isSaved()
+    {
+        return isSaved;
+    }
+    
+    public boolean canSave()
+    {
+        Stone[][] board = gameBoard.getCurrentBoardState();
+        if (atHome)
+        {
+            return false;
+        }
+        for ( int i = 0; i < 19; i++ )
+        {
+            for (int j = 0 ; j < 19; j++)
+            {
+                Stone s = board[i][j];
+                if (s != null)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
     public void undo()
     {
-        //System.out.println("Called undo");
-        //gameBoard.printStones();
+        // System.out.println("Called undo");
+        // gameBoard.printStones();
         Stone[][] previousBoardState = gameBoard.getPreviousBoardState();
-        if (!canUndo())
+        if ( !canUndo() )
         {
             return;
         }
@@ -224,6 +287,8 @@ public class GameManager implements MouseListener
         commandPanel.updateButtons();
         drawBoard.repaint();
         gameBoard.getStoneZone().repaint();
+        isSaved = false;
+        commandPanel.updateButtons();
     }
 
 
@@ -231,7 +296,7 @@ public class GameManager implements MouseListener
     {
         // System.out.println("Called redo");
         Stone[][] undoneBoardState = gameBoard.getUndoneBoardState();
-        if (!canRedo())
+        if ( !canRedo() )
         {
             return;
         }
@@ -239,16 +304,17 @@ public class GameManager implements MouseListener
         gameBoard.setBoardState( undoneBoardState );
         gameBoard.setUndoneBoardState( null );
         switchPlayer();
-        commandPanel.updateButtons();
         drawBoard.repaint();
         gameBoard.getStoneZone().repaint();
+        isSaved = false;
+        commandPanel.updateButtons();
     }
 
 
     public boolean playPiece( StoneColor color, BoardLocation location )
     {
         // returns if it was played or not (valid or invalid)
-        if (atHome)
+        if ( atHome )
         {
             return false;
         }
@@ -260,6 +326,8 @@ public class GameManager implements MouseListener
         }
         else
         {
+            //System.out.println("saying it is not saved");
+            isSaved = false;
             commandPanel.updateButtons();
         }
         return wasValidPlay;
@@ -280,6 +348,7 @@ public class GameManager implements MouseListener
         if ( playPiece( currentPlayer.getColor(), loc ) )
         {
             switchPlayer();
+            //System.out.println(currentPlayer.getColor().toString());
         }
         else
         {
@@ -288,7 +357,11 @@ public class GameManager implements MouseListener
         }
     }
 
-
+    public JFrame getWindow()
+    {
+        return window;
+    }
+    
     public void mouseReleased( MouseEvent e )
     {
     }
