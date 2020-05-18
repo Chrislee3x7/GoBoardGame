@@ -1,7 +1,10 @@
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -70,6 +73,8 @@ public class CommandPanel extends JPanel implements ActionListener
         newGameButton.addActionListener( this );
         loadGameButton.addActionListener( this );
         homeButton.addActionListener( this );
+        setBackground(Color.CYAN);
+        setBorder(BorderFactory.createLineBorder( Color.BLACK ));
 
     }
 

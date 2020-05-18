@@ -12,4 +12,8 @@ public interface Player
     // Initiates this player's next move
 
     StoneColor getColor();
+
+    String getName();
+    
+    void setName(String name);
 }

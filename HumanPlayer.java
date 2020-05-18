@@ -6,9 +6,12 @@ public class HumanPlayer implements Player
     
     private StoneColor color;
     
-    public HumanPlayer(StoneColor playerColor)
+    private String name;
+    
+    public HumanPlayer(StoneColor playerColor, String playerName)
     {
         color = playerColor;
+        name = playerName;
     }
     
     public String getPrompt()
@@ -21,6 +24,15 @@ public class HumanPlayer implements Player
         return "You've won!";
     }
     
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
     
     @Override
     public String toString()
