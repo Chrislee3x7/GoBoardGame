@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -20,15 +21,15 @@ public class GameManager implements MouseListener
 
     // private JFrame board;
 
-    private Player player1;
+    private HumanPlayer player1;
 
-    private Player player2;
+    private HumanPlayer player2;
 
     private String currentP1Name;
 
     private String currentP2Name;
 
-    private Player currentPlayer;
+    private HumanPlayer currentPlayer;
 
     private GameBoard gameBoard;
 
@@ -45,6 +46,8 @@ public class GameManager implements MouseListener
     private boolean atHome = true;
 
     private boolean isSaved = true;
+
+    private int passesInARow;
 
 
     public static void main( String[] args ) throws FileNotFoundException
@@ -66,8 +69,9 @@ public class GameManager implements MouseListener
         drawBoard = ( gameBoard ).getDrawBoard();
         window.add( drawBoard, BorderLayout.WEST );
         window.add( commandPanel, BorderLayout.EAST );
-        quickInfo = new JLabel("Home Screen. " + "will display what image here");
-        quickInfo.setPreferredSize( new Dimension(500, 30) );
+        quickInfo = new JLabel();
+        quickInfo.setFont( new Font( "Century", Font.BOLD, 14 ) );
+        quickInfo.setPreferredSize( new Dimension( 500, 25 ) );
         window.add( quickInfo, BorderLayout.SOUTH );
 
         JComponent stoneZone = gameBoard.getStoneZone();
@@ -91,8 +95,85 @@ public class GameManager implements MouseListener
     private void switchPlayer()
     {
         currentPlayer = currentPlayer == player1 ? player2 : player1;
-        quickInfo.setText( currentPlayer.getColor() + ": "
-            + currentPlayer.getName() + "'s turn." );
+        quickInfo.setText( " [" + currentPlayer.getName() + "]'s ("
+            + currentPlayer.getColor() + ") turn." );
+    }
+
+
+    public void setQuickInfoMessage( String message )
+    {
+        quickInfo.setText( message );
+    }
+
+
+    public void passTurn()
+    {
+        HumanPlayer passedPlayer = currentPlayer;
+        switchPlayer();
+        passesInARow++;
+        if ( passesInARow == 2 )
+        {
+            quickInfo
+                .setText( " Both players have passed, the game is now over." );
+            JOptionPane.showMessageDialog( getWindow(),
+                "Both players have passed, the game is now over. "
+                    + "\nClick \"OK\" to see the results!",
+                "Game has ended",
+                JOptionPane.INFORMATION_MESSAGE );
+
+            int blackArea = gameBoard.getAreaOfColor( StoneColor.BLACK );
+            int whiteArea = gameBoard.getAreaOfColor( StoneColor.WHITE );
+            if ( blackArea > whiteArea )
+            {
+                JOptionPane.showMessageDialog( getWindow(),
+                    "Black has won! Congratulations [" + player1.getName()
+                        + "]!" + "\nBlack: " + blackArea + " White: "
+                        + whiteArea,
+                    "Black wins",
+                    JOptionPane.INFORMATION_MESSAGE );
+            }
+            else if ( whiteArea > blackArea )
+            {
+                JOptionPane.showMessageDialog( getWindow(),
+                    "White has won! Congratulations [" + player2.getName()
+                        + "]!" + "\nBlack: " + blackArea + " White: "
+                        + whiteArea,
+                    "White wins",
+                    JOptionPane.INFORMATION_MESSAGE );
+            }
+            else
+            {
+                JOptionPane.showMessageDialog( getWindow(),
+                    "It's a tie!" + "\nBlack: " + blackArea + " White: "
+                        + whiteArea,
+                    "Draw",
+                    JOptionPane.INFORMATION_MESSAGE );
+            }
+            Object[] options = { "Let's Play!", "Go Home" };
+            int n = JOptionPane.showOptionDialog( getWindow(),
+                "Would you like to play again?",
+                "Play Again?",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0] );
+            if ( n == 1 )
+            {
+                goHome();
+            }
+            else if ( n == 0 )
+            {
+                startNewGame();
+            }
+        }
+        else
+        {
+            quickInfo.setText( " [" + passedPlayer.getName() + "]("
+                + passedPlayer.getColor() + ")" + " has passed. "
+                + "\nIt is now" + "[" + currentPlayer.getName() + "]'s " + "("
+                + currentPlayer.getColor() + ") " + " turn." );
+        }
     }
 
 
@@ -128,7 +209,7 @@ public class GameManager implements MouseListener
             "Player 2 (WHITE)" );
         int n = JOptionPane.showOptionDialog( getWindow(),
             playerNameFields,
-            "Please enter player names. (only letters and digits, no spaces)",
+            "New Game",
             JOptionPane.OK_CANCEL_OPTION,
             JOptionPane.PLAIN_MESSAGE,
             null,
@@ -160,19 +241,19 @@ public class GameManager implements MouseListener
             {
                 player2.setName( "Player2" );
             }
-            player2.setName( player2Name );
             currentPlayer = player1;
             setAtHome( false );
             gameBoard.setBoardState( new Stone[19][19] );
             gameBoard.getStoneZone().repaint();
             commandPanel.updateButtons();
+            quickInfo
+                .setText( " New game started. " + "[" + currentPlayer.getName()
+                    + "]'s " + "(" + currentPlayer.getColor() + ") turn." );
             JOptionPane.showMessageDialog( getWindow(),
-                currentPlayer.getColor() + ": " + currentPlayer.getName()
-                    + "'s turn.",
+                "[" + currentPlayer.getName() + "]'s " + "("
+                    + currentPlayer.getColor() + ") turn.",
                 "New Game",
                 JOptionPane.INFORMATION_MESSAGE );
-            quickInfo.setText( "New game started. " + currentPlayer.getColor() + ": "
-                            + currentPlayer.getName() + "'s turn." );
         }
     }
 
@@ -307,12 +388,15 @@ public class GameManager implements MouseListener
         // {
         // //return;
         // }
+        gameBoard.getStoneZone().incrementStartFileIndex();
+        gameBoard.getStoneZone().repaint();
         gameBoard.setBoardState( null );
         gameBoard.setPreviousBoardState( null );
         gameBoard.setUndoneBoardState( null );
         setAtHome( true );
         gameBoard.getStoneZone().repaint();
-        quickInfo.setText( "Home Screen. " + "will display what image here" );
+        // quickInfo.setText( " Home Screen. " + "will display what image here"
+        // );
         isSaved = true;
         commandPanel.updateButtons();
     }
@@ -379,12 +463,11 @@ public class GameManager implements MouseListener
         gameBoard.setPreviousBoardState( null );
         switchPlayer();
         commandPanel.updateButtons();
-        drawBoard.repaint();
         gameBoard.getStoneZone().repaint();
         isSaved = false;
         commandPanel.updateButtons();
-        quickInfo.setText( "Move undone. " + currentPlayer.getColor() + ": "
-                        + currentPlayer.getName() + "'s turn." );
+        quickInfo.setText( " Move undone. " + currentPlayer.getColor() + ": "
+            + currentPlayer.getName() + "'s turn." );
     }
 
 
@@ -400,12 +483,11 @@ public class GameManager implements MouseListener
         gameBoard.setBoardState( undoneBoardState );
         gameBoard.setUndoneBoardState( null );
         switchPlayer();
-        drawBoard.repaint();
         gameBoard.getStoneZone().repaint();
         isSaved = false;
         commandPanel.updateButtons();
-        quickInfo.setText( "Move redone. " + currentPlayer.getColor() + ": "
-                        + currentPlayer.getName() + "'s turn." );
+        quickInfo.setText( " Move redone. " + currentPlayer.getColor() + ": "
+            + currentPlayer.getName() + "'s turn." );
     }
 
 
@@ -429,6 +511,7 @@ public class GameManager implements MouseListener
             // System.out.println("saying it is not saved");
             isSaved = false;
             commandPanel.updateButtons();
+            passesInARow = 0;
         }
         return wasValidPlay;
     }
@@ -443,6 +526,8 @@ public class GameManager implements MouseListener
     public void mouseClicked( MouseEvent e )
     {
         // System.out.println("mouse clicked");
+        gameBoard.getStoneZone().incrementStartFileIndex();
+        gameBoard.getStoneZone().repaint();
         BoardLocation loc = GameBoard.translateToLocation( e.getX(),
             e.getY() );
         if ( playPiece( currentPlayer.getColor(), loc ) )

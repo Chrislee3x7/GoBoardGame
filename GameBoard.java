@@ -31,10 +31,10 @@ public class GameBoard
     private static final int HEIGHT = 19;
 
     private Stone[][] stoneMatrix;
-    
-    //for undo/redo
+
+    // for undo/redo
     private Stone[][] previousBoardState;
-    
+
     private Stone[][] undoneBoardState;
 
     private GameManager gm;
@@ -51,66 +51,99 @@ public class GameBoard
         drawBoard = new DrawBoard( this );
         stoneMatrix = new Stone[WIDTH][HEIGHT];
     }
-    
+
+
     public static BoardLocation translateToLocation( int x, int y )
     {
         BoardLocation bl = new BoardLocation( ( x - 20 ) / 40,
             ( y - 20 ) / 40 );
-        //System.out.println( bl );
+        // System.out.println( bl );
         return bl;
     }
+
+    public int getAreaOfColor( StoneColor color )
+    {
+        // count eyes of color
+        int numberOfEyes = 0;
+        // count stone of color
+        int numberOfStones = 0;
+        for ( int i = 0; i < WIDTH; i++ )
+        {
+            for ( int j = 0; j < HEIGHT; j++ )
+            {
+                Stone stone = getStone( i, j );
+                if ( stone == null
+                    && isEyeOfColor( color, new BoardLocation(i, j) ) )
+                {
+                    numberOfEyes++;
+                }
+                else if ( stone != null && stone.getColor() == color )
+                {
+                    numberOfStones++;
+                }
+            }
+        }
+        return numberOfStones + numberOfEyes;
+    }
+
 
     public Stone[][] getPreviousBoardState()
     {
         return previousBoardState;
     }
-    
+
+
     public Stone[][] getUndoneBoardState()
     {
         return undoneBoardState;
     }
-    
+
+
     public Stone[][] getCurrentBoardState()
     {
         return stoneMatrix;
     }
-    
-    public void setPreviousBoardState(Stone[][] newPreviousBoardState)
+
+
+    public void setPreviousBoardState( Stone[][] newPreviousBoardState )
     {
         previousBoardState = newPreviousBoardState;
     }
-    
-    public void setUndoneBoardState(Stone[][] newUndoneBoardState)
+
+
+    public void setUndoneBoardState( Stone[][] newUndoneBoardState )
     {
         undoneBoardState = newUndoneBoardState;
-//        for (int i = 0; i < stoneMatrix.length; i++)
-//        {
-//            for (int j = 0; j < stoneMatrix.length; j++)
-//            {
-//                stoneMatrix[i][j] = newStoneMatrix[i][j];
-//            }
-//        }
+        // for (int i = 0; i < stoneMatrix.length; i++)
+        // {
+        // for (int j = 0; j < stoneMatrix.length; j++)
+        // {
+        // stoneMatrix[i][j] = newStoneMatrix[i][j];
+        // }
+        // }
     }
-    
-    
-    public void setBoardState(Stone[][] newStoneMatrix)
+
+
+    public void setBoardState( Stone[][] newStoneMatrix )
     {
         stoneMatrix = newStoneMatrix;
     }
-    
+
+
     public Stone[][] cloneCurrentBoardState()
     {
         Stone[][] newStoneMatrix = new Stone[WIDTH][HEIGHT];
-        for (int i = 0; i < WIDTH; i++)
+        for ( int i = 0; i < WIDTH; i++ )
         {
-            for (int j = 0; j < HEIGHT; j++)
+            for ( int j = 0; j < HEIGHT; j++ )
             {
                 newStoneMatrix[i][j] = stoneMatrix[i][j];
             }
         }
         return newStoneMatrix;
     }
-    
+
+
     public DrawBoard getDrawBoard()
     {
         return drawBoard;
@@ -126,16 +159,15 @@ public class GameBoard
         }
         Stone[][] cloneBoard = cloneCurrentBoardState();
         Stone testStone = new Stone( color, location, stoneZone );
-        
+
         stoneMatrix[location.getX()][location.getY()] = testStone;
-        
 
         if ( removeZeroLibertyStones( testStone ) || hasLiberties( color,
             location )/* GoRules.isValidPlacement( board, location, color ) */ )
         {
-            testStone.display((Graphics2D)stoneZone.getGraphics());
-            setPreviousBoardState(cloneBoard);
-            setUndoneBoardState(null);
+            testStone.display( (Graphics2D)stoneZone.getGraphics() );
+            setPreviousBoardState( cloneBoard );
+            setUndoneBoardState( null );
             return true;
         }
         else
@@ -152,7 +184,7 @@ public class GameBoard
     {
         Stone stone = stoneMatrix[location.getX()][location.getY()];
         stoneMatrix[location.getX()][location.getY()] = null;
-        //System.out.println( "trying to repaint to remove stone" );
+        // System.out.println( "trying to repaint to remove stone" );
         // stoneZone.repaint();
         // stoneZone.paintComponent( stoneZone.getGraphics() );
         // drawBoard.repaintLocation( location );
@@ -184,7 +216,26 @@ public class GameBoard
     }
 
 
-    //return if any stones are removed
+    private StoneColor getOppositeColor( StoneColor color )
+    {
+        if ( color == StoneColor.BLACK )
+        {
+            return StoneColor.WHITE;
+        }
+        else
+        {
+            return StoneColor.BLACK;
+        }
+    }
+
+
+    private boolean isEyeOfColor(StoneColor color, BoardLocation location)
+    {
+        return !hasLiberties(getOppositeColor(color), location);
+    }
+
+
+    // return if any stones are removed
     private boolean removeZeroLibertyStones( Stone stone )
     {
         // get adjacent stones north south east west
@@ -234,19 +285,21 @@ public class GameBoard
         return stonesToBeRemoved.size() > 0;
     }
 
+
     public void printStones()
     {
-        for (Stone[] s : stoneMatrix)
+        for ( Stone[] s : stoneMatrix )
         {
-            for (Stone stone : s)
+            for ( Stone stone : s )
             {
-                if (stone != null)
+                if ( stone != null )
                 {
-                    System.out.println(stone);
+                    System.out.println( stone );
                 }
             }
         }
     }
+
 
     private HashSet<Stone> findRemovableStones(
         Stone adjacentStone,
@@ -356,12 +409,6 @@ public class GameBoard
         }
         // check if stone is allied stone: call hasLiberties on stone
         return hasLiberties( adjacentStone, visitedStones );
-    }
-
-
-    public Stone getStone( BoardLocation loc )
-    {
-        return getStone( loc.getX(), loc.getY() );
     }
 
 

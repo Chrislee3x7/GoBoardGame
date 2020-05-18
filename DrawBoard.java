@@ -5,7 +5,9 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+
 
 public class DrawBoard extends JPanel
 {
@@ -27,33 +29,37 @@ public class DrawBoard extends JPanel
     private static final int FIRST_DOT_OFFSET = LINE_GAP_DISTANCE * 4
         - REFERENCE_DOT_DIAMETER / 2;
 
-    private static final Color BACKGROUND_COLOR = new Color( 0, 100, 0 );
+    private static final Color BACKGROUND_COLOR = new Color( 144, 238, 144 );
 
     private static final Color BOARD_COLOR = new Color( 255, 210, 120 );
 
     private static final Color BOARD_LINES_COLOR = new Color( 0, 0, 0 );
-    
+
     private Graphics2D g2D;
-    
+
     private GameBoard myGameBoard;
-    
+
+
     public DrawBoard( GameBoard gameBoard )
     {
         myGameBoard = gameBoard;
-        setPreferredSize(new Dimension( 800, 800 ));
-        
+        setPreferredSize( new Dimension( 800, 800 ) );
+
         setBackground( BACKGROUND_COLOR );
-        g2D = (Graphics2D) getGraphics();
+        setBorder( BorderFactory.createLineBorder( Color.BLACK) );
+        g2D = (Graphics2D)getGraphics();
     }
-    
+
+
     public Graphics2D getGraphics2D()
     {
         return (Graphics2D)getGraphics();
     }
-    
-    public void paintComponent(Graphics g)
+
+
+    public void paintComponent( Graphics g )
     {
-        //System.out.println("DrawBoard repaint method called");
+        // System.out.println("DrawBoard repaint method called");
         super.paintComponent( g );
         Graphics2D g2D = (Graphics2D)g;
         // g2D.fillRect( 40, 40, 40, 40 );

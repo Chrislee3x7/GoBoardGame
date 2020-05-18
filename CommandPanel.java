@@ -32,6 +32,8 @@ public class CommandPanel extends JPanel implements ActionListener
 
     private JButton redoButton;
 
+    private JButton passTurnButton;
+
     GameManager gm;
 
 
@@ -58,11 +60,15 @@ public class CommandPanel extends JPanel implements ActionListener
         homeButton = new JButton( "Home" );
         homeButton
             .setPreferredSize( new Dimension( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+        passTurnButton = new JButton( "Pass Turn" );
+        passTurnButton
+            .setPreferredSize( new Dimension( BUTTON_WIDTH, BUTTON_HEIGHT ) );
         add( newGameButton );
         add( saveGameButton );
         add( loadGameButton );
         add( undoButton );
         add( redoButton );
+        add( passTurnButton );
         add( homeButton );
 
         updateButtons();
@@ -73,8 +79,9 @@ public class CommandPanel extends JPanel implements ActionListener
         newGameButton.addActionListener( this );
         loadGameButton.addActionListener( this );
         homeButton.addActionListener( this );
-        setBackground(Color.CYAN);
-        setBorder(BorderFactory.createLineBorder( Color.BLACK ));
+        passTurnButton.addActionListener(this);
+        setBackground( new Color(173,216,230) );
+        setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
 
     }
 
@@ -87,6 +94,7 @@ public class CommandPanel extends JPanel implements ActionListener
         newGameButton.setEnabled( gm.isAtHome() );
         loadGameButton.setEnabled( gm.canLoad() && gm.isAtHome() );
         homeButton.setEnabled( !gm.isAtHome() );
+        passTurnButton.setEnabled( !gm.isAtHome() );
     }
 
 
@@ -112,6 +120,22 @@ public class CommandPanel extends JPanel implements ActionListener
         else if ( button == loadGameButton )
         {
             gm.loadGame();
+        }
+        else if ( button == passTurnButton )
+        {
+            Object[] options = { "Yeah!", "Oops"};
+            int n = JOptionPane.showOptionDialog( gm.getWindow(),
+                "Are you sure you want to pass your turn? \nIf both players pass, the game will be over",
+                "Confirm Pass Turn",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                options,
+                options[1] );
+            if (n == 0)
+            {
+                gm.passTurn();
+            }
         }
         else if ( button == homeButton )
         {
@@ -151,7 +175,7 @@ public class CommandPanel extends JPanel implements ActionListener
     {
         Object[] options = { "Yeah!", "Nah, not this one", "Cancel" };
         int n = JOptionPane.showOptionDialog( gm.getWindow(),
-            "Hmm... Looks like the current game isnt saved... Would you like to save?",
+            "Hmm... Looks like the current game isnt saved... \nWould you like to save?",
             "Save Progress?",
             JOptionPane.YES_NO_CANCEL_OPTION,
             JOptionPane.WARNING_MESSAGE,

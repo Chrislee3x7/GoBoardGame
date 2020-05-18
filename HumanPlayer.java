@@ -1,7 +1,7 @@
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class HumanPlayer implements Player
+public class HumanPlayer
 {
     
     private StoneColor color;
@@ -47,7 +47,6 @@ public class HumanPlayer implements Player
         return "POOP";
     }
 
-    @Override
     public StoneColor getColor()
     {
         return color;

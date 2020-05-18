@@ -85,65 +85,73 @@ public class StoneZone extends JComponent
             }
         }
         sc.close();
-//        final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-//        executorService.scheduleWithFixedDelay(new Runnable() {
-//            @Override
-//            public void run() {
-//                repaint();
-//            }
-//        }, 0, 20, TimeUnit.MINUTES);
+        // final ScheduledExecutorService executorService =
+        // Executors.newSingleThreadScheduledExecutor();
+        // executorService.scheduleWithFixedDelay(new Runnable() {
+        // @Override
+        // public void run() {
+        // repaint();
+        // }
+        // }, 0, 20, TimeUnit.MINUTES);
+    }
+
+
+    public void incrementStartFileIndex()
+    {
+        if ( startFileIndex == 3 )
+        {
+            startFileIndex = 0;
+        }
+        else
+        {
+            startFileIndex++;
+        }
     }
 
 
     public void paintComponent( Graphics g )
     {
         super.paintComponent( g );
-        // System.out.println("Called repaint for stonezone");
-        String startFileName = "";
-        switch ( startFileIndex )
-        {
-            case 0:
-                startFileName = "StartPattern1";
-                break;
-            case 1:
-                startFileName = "YinYangStartPattern";
-                break;
-            case 2:
-                startFileName = "ThumbsUpStartPattern";
-                break;
-            case 3:
-                startFileName = "MinecraftSwordStartPattern";
-                break;
-        }
+        //System.out.println( "Called repaint for stonezone" );
         // if (i == 4)
         // {
         // i = 0;
         // }
         if ( gm.isAtHome() )
         {
+            String startFileName = "";
+            switch ( startFileIndex )
+            {
+                case 0:
+                    startFileName = "StartPattern1";
+                    break;
+                case 1:
+                    startFileName = "YinYangStartPattern";
+                    break;
+                case 2:
+                    startFileName = "ThumbsUpStartPattern";
+                    break;
+                case 3:
+                    startFileName = "MinecraftSwordStartPattern";
+                    break;
+            }
+            gm.setQuickInfoMessage(
+                " At Home. Currently displaying: " + startFileName );
             paintHome( g, startFileName );
-            if (startFileIndex == 3) 
-            {
-                startFileIndex = 0;
-            }
-            else 
-            {
-                startFileIndex++;
-            }
-            return;
         }
-        
-
-        for ( int i = 0; i < myGameBoard.getWidth(); i++ )
+        else
         {
-            for ( int j = 0; j < myGameBoard.getHeight(); j++ )
+            for ( int i = 0; i < myGameBoard.getWidth(); i++ )
             {
-                Stone stone = myGameBoard.getStone( i, j );
-                if ( stone != null )
+                for ( int j = 0; j < myGameBoard.getHeight(); j++ )
                 {
-                    // System.out.println("im a stone");
-                    stone.display( (Graphics2D)g );
-                    // getGraphics().fillRect( 40, 40, 40, 40 );
+                    Stone stone = myGameBoard.getStone( i, j );
+                    if ( stone != null )
+                    {
+                        // System.out.println("im a stone");
+                        stone.display( (Graphics2D)g );
+                        // getGraphics().fillRect( 40, 40, 40, 40 );
+                    }
                 }
             }
         }
