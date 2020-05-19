@@ -3,16 +3,20 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 
 public class CommandPanel extends JPanel implements ActionListener
 {
-    private static final int BUTTON_WIDTH = 120;
+    private static final int BUTTON_WIDTH = 130;
 
     private static final int BUTTON_HEIGHT = 40;
 
@@ -39,30 +43,48 @@ public class CommandPanel extends JPanel implements ActionListener
 
     public CommandPanel( GameManager gm )
     {
+        ImageIcon tempIcon = null;
+        //UIManager.getIcon( "" )
         setPreferredSize(
             new Dimension( COMMAND_PANEL_WIDTH, COMMAND_PANEL_HEIGHT ) );
         this.gm = gm;
+        //tempIcon = new ImageIcon("Undo.png");
+        //undoButton = new JButton( tempIcon );
         undoButton = new JButton( "Undo Move" );
         undoButton
             .setPreferredSize( new Dimension( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+        undoButton.setIcon( UIManager.getIcon( "Table.ascendingSortIcon" ) );
+        
         redoButton = new JButton( "Redo Move" );
         redoButton
             .setPreferredSize( new Dimension( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+        redoButton.setIcon( UIManager.getIcon( "Table.descendingSortIcon" ) );
+        
         saveGameButton = new JButton( "Save Game" );
         saveGameButton
             .setPreferredSize( new Dimension( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+        saveGameButton.setIcon( UIManager.getIcon( "FileView.floppyDriveIcon" ) );
+        
         newGameButton = new JButton( "New Game" );
         newGameButton
             .setPreferredSize( new Dimension( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+        newGameButton.setIcon( UIManager.getIcon( "Tree.leafIcon" ) );
+
+        
         loadGameButton = new JButton( "Load Game" );
         loadGameButton
             .setPreferredSize( new Dimension( BUTTON_WIDTH, BUTTON_HEIGHT ) );
-        homeButton = new JButton( "Home" );
+        loadGameButton.setIcon( UIManager.getIcon( "FileChooser.upFolderIcon" ) );
+
+        homeButton = new JButton( "Go Home" );
         homeButton
             .setPreferredSize( new Dimension( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+        homeButton.setIcon( UIManager.getIcon( "FileChooser.homeFolderIcon" ) );
+        
         passTurnButton = new JButton( "Pass Turn" );
         passTurnButton
             .setPreferredSize( new Dimension( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+        passTurnButton.setIcon( UIManager.getIcon( "Slider.verticalThumbIcon" ) );
         add( newGameButton );
         add( saveGameButton );
         add( loadGameButton );
@@ -79,8 +101,8 @@ public class CommandPanel extends JPanel implements ActionListener
         newGameButton.addActionListener( this );
         loadGameButton.addActionListener( this );
         homeButton.addActionListener( this );
-        passTurnButton.addActionListener(this);
-        setBackground( new Color(173,216,230) );
+        passTurnButton.addActionListener( this );
+        setBackground( new Color( 173, 216, 230 ) );
         setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
 
     }
@@ -123,7 +145,7 @@ public class CommandPanel extends JPanel implements ActionListener
         }
         else if ( button == passTurnButton )
         {
-            Object[] options = { "Yeah!", "Oops"};
+            Object[] options = { "Yeah!", "Oops" };
             int n = JOptionPane.showOptionDialog( gm.getWindow(),
                 "Are you sure you want to pass your turn? \nIf both players pass, the game will be over",
                 "Confirm Pass Turn",
@@ -132,7 +154,7 @@ public class CommandPanel extends JPanel implements ActionListener
                 null,
                 options,
                 options[1] );
-            if (n == 0)
+            if ( n == 0 )
             {
                 gm.passTurn();
             }
@@ -142,26 +164,6 @@ public class CommandPanel extends JPanel implements ActionListener
             if ( !gm.isSaved() )
             {
                 tryToGoHomeWithoutSave();
-                if ( !gm.isSaved() )
-                {
-                    Object[] options = { "Go home", "Wait, not yet" };
-                    int n = JOptionPane.showOptionDialog( gm.getWindow(),
-                        "Would you still like to go home?",
-                        "Confirm Go Home",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE,
-                        null,
-                        options,
-                        options[1] );
-                    if ( n == 0 )
-                    {
-                        gm.goHome();
-                    }
-                }
-                else
-                {
-                    gm.goHome();
-                }
             }
             else if ( gm.isSaved() )
             {
@@ -185,10 +187,27 @@ public class CommandPanel extends JPanel implements ActionListener
         if ( n == 0 )
         {
             tryToSave();
+            Object[] options2 = { "Go home", "Wait, not yet" };
+            int m = JOptionPane.showOptionDialog( gm.getWindow(),
+                "Would you still like to go home?",
+                "Confirm Go Home",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                options2,
+                options2[1] );
+            if ( m == 0 )
+            {
+                gm.goHome();
+            }
         }
         else if ( n == 1 )
         {
             gm.goHome();
+        }
+        else if ( n == 2 )
+        {
+
         }
         // else if (n == 1)
         // {

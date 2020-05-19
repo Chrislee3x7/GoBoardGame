@@ -7,12 +7,17 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Scanner;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import javax.swing.JComponent;
 
 
@@ -53,6 +58,16 @@ public class GameManager implements MouseListener
     public static void main( String[] args ) throws FileNotFoundException
     {
         GameManager gm = new GameManager();
+        Hashtable<Object,Object> defs = UIManager.getDefaults();
+        Enumeration en = defs.keys();
+        while (en.hasMoreElements()) {
+            Object o = en.nextElement();
+            if (o instanceof String) {
+                String key = (String)o;
+                if (key.indexOf("Icon") >= 0)
+                    System.out.println(key);
+            }
+        }
     }
 
 
@@ -147,6 +162,8 @@ public class GameManager implements MouseListener
             }
             else
             {
+                gameBoard.getStoneZone().tieGame();
+                gameBoard.getStoneZone().repaint();
                 JOptionPane.showMessageDialog( getWindow(),
                     "It's a tie!" + "\nBlack: " + blackArea + " White: "
                         + whiteArea,
@@ -328,15 +345,19 @@ public class GameManager implements MouseListener
         }
         player1.setName( sc.next() );
         player2.setName( sc.next() );
+        sc.nextLine();
+        String date = sc.nextLine();
         JOptionPane.showMessageDialog( getWindow(),
-            currentPlayer.getColor() + ": " + currentPlayer.getName()
-                + "'s turn.",
+            "Game loaded from:" + date + ". \n[" + currentPlayer.getName()
+                + "]'s (" + currentPlayer.getColor() + ") turn.",
             "Loaded Game",
             JOptionPane.INFORMATION_MESSAGE );
-        quickInfo.setText( "Game loaded." + currentPlayer.getColor() + ": "
-            + currentPlayer.getName() + "'s turn." );
+        quickInfo.setText(
+            "Game loaded from: " + date + ". [" + currentPlayer.getName()
+                + "]'s (" + currentPlayer.getColor() + ") turn." );
         isSaved = true;
         commandPanel.updateButtons();
+        sc.close();
     }
 
 
@@ -377,9 +398,21 @@ public class GameManager implements MouseListener
         pw.println( currentPlayer.getColor() );
         pw.println( player1.getName() );
         pw.println( player2.getName() );
+
+        DateTimeFormatter dtf = DateTimeFormatter
+            .ofPattern( "MM/dd/yyyy HH:mm" );
+        LocalDateTime now = LocalDateTime.now();
+        String date = dtf.format( now );
+        pw.println( date );
         pw.close();
-        quickInfo.setText( "Game saved. " + currentPlayer.getColor() + ": "
-            + currentPlayer.getName() + "'s turn." );
+        JOptionPane.showMessageDialog( getWindow(),
+            "Game saved on:" + date + ". \n[" + currentPlayer.getName()
+                + "]'s (" + currentPlayer.getColor() + ") turn.",
+            "Saved Game",
+            JOptionPane.INFORMATION_MESSAGE );
+        quickInfo.setText( "Game saved on: " + date + ". ["
+            + currentPlayer.getName() + "]'s (" + currentPlayer.getColor()
+            + ") turn." );
         isSaved = true;
         commandPanel.updateButtons();
     }

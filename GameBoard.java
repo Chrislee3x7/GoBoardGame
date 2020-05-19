@@ -1,11 +1,6 @@
-import javax.swing.JPanel;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Stack;
 
 
 public class GameBoard
@@ -50,6 +45,7 @@ public class GameBoard
         stoneZone = new StoneZone( this, gm );
         drawBoard = new DrawBoard( this );
         stoneMatrix = new Stone[WIDTH][HEIGHT];
+        
     }
 
 

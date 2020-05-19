@@ -25,6 +25,8 @@ public class StoneZone extends JComponent
     private int startFileIndex;
     
     private StoneColor winnerColor;
+    
+    private boolean isTieGame;
 
 
     public StoneZone( GameBoard gameBoard, GameManager gm )
@@ -32,6 +34,7 @@ public class StoneZone extends JComponent
         this.myGameBoard = gameBoard;
         this.gm = gm;
         winnerColor = null;
+        isTieGame = false;
         startFileIndex = 0;
     }
 
@@ -98,6 +101,11 @@ public class StoneZone extends JComponent
         // }, 0, 20, TimeUnit.MINUTES);
     }
 
+    public void tieGame()
+    {
+        isTieGame = true;
+    }
+    
     public void setWinnerColor(StoneColor color) 
     {
         winnerColor = color;
@@ -150,6 +158,11 @@ public class StoneZone extends JComponent
         {
             paintFromFile(g, winnerColor.toString() + "WinPattern");
             winnerColor = null;
+        }
+        else if (isTieGame)
+        {
+            paintFromFile(g, "TieGamePattern");
+            isTieGame = false;
         }
         else
         {
