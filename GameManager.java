@@ -125,6 +125,8 @@ public class GameManager implements MouseListener
             int whiteArea = gameBoard.getAreaOfColor( StoneColor.WHITE );
             if ( blackArea > whiteArea )
             {
+                gameBoard.getStoneZone().setWinnerColor( StoneColor.BLACK );
+                gameBoard.getStoneZone().repaint();
                 JOptionPane.showMessageDialog( getWindow(),
                     "Black has won! Congratulations [" + player1.getName()
                         + "]!" + "\nBlack: " + blackArea + " White: "
@@ -134,6 +136,8 @@ public class GameManager implements MouseListener
             }
             else if ( whiteArea > blackArea )
             {
+                gameBoard.getStoneZone().setWinnerColor( StoneColor.WHITE );
+                gameBoard.getStoneZone().repaint();
                 JOptionPane.showMessageDialog( getWindow(),
                     "White has won! Congratulations [" + player2.getName()
                         + "]!" + "\nBlack: " + blackArea + " White: "
@@ -149,7 +153,7 @@ public class GameManager implements MouseListener
                     "Draw",
                     JOptionPane.INFORMATION_MESSAGE );
             }
-            Object[] options = { "Let's Play!", "Go Home" };
+            Object[] options = { "Let's play!", "Go home" };
             int n = JOptionPane.showOptionDialog( getWindow(),
                 "Would you like to play again?",
                 "Play Again?",
@@ -327,7 +331,7 @@ public class GameManager implements MouseListener
         JOptionPane.showMessageDialog( getWindow(),
             currentPlayer.getColor() + ": " + currentPlayer.getName()
                 + "'s turn.",
-            "Loade Game",
+            "Loaded Game",
             JOptionPane.INFORMATION_MESSAGE );
         quickInfo.setText( "Game loaded." + currentPlayer.getColor() + ": "
             + currentPlayer.getName() + "'s turn." );

@@ -23,12 +23,15 @@ public class StoneZone extends JComponent
     private GameManager gm;
 
     private int startFileIndex;
+    
+    private StoneColor winnerColor;
 
 
     public StoneZone( GameBoard gameBoard, GameManager gm )
     {
         this.myGameBoard = gameBoard;
         this.gm = gm;
+        winnerColor = null;
         startFileIndex = 0;
     }
 
@@ -42,8 +45,8 @@ public class StoneZone extends JComponent
     // 40,
     // 40 ));
     // }
-
-    public void paintHome( Graphics g, String startFileName )
+    
+    public void paintFromFile( Graphics g, String startFileName )
     {
         Scanner sc = null;
         try
@@ -95,7 +98,11 @@ public class StoneZone extends JComponent
         // }, 0, 20, TimeUnit.MINUTES);
     }
 
-
+    public void setWinnerColor(StoneColor color) 
+    {
+        winnerColor = color;
+    }
+    
     public void incrementStartFileIndex()
     {
         if ( startFileIndex == 3 )
@@ -137,7 +144,12 @@ public class StoneZone extends JComponent
             }
             gm.setQuickInfoMessage(
                 " At Home. Currently displaying: " + startFileName );
-            paintHome( g, startFileName );
+            paintFromFile( g, startFileName );
+        }
+        else if (winnerColor != null)
+        {
+            paintFromFile(g, winnerColor.toString() + "WinPattern");
+            winnerColor = null;
         }
         else
         {
